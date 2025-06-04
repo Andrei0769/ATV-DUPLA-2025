@@ -1,0 +1,36 @@
+.mensagem {
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+  animation: mensagemAppear 0.3s ease-out forwards;
+}
+
+.mensagem-erro {
+  background: rgba(255, 23, 68, 0.1);
+  color: #ff1744;
+  border: 1px solid rgba(255, 23, 68, 0.3);
+}
+
+.mensagem-sucesso {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+@keyframes mensagemAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mensagem.erro {
+  background-color: #1e1e1e;
+  color: #ff1744;
+}
