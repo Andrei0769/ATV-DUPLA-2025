@@ -66,8 +66,8 @@ export default function Cadastro() {
       }
 
       const url = id 
-        ? `http://localhost:8080/pratos/${id}`
-        : "http://localhost:8080/pratos";
+        ? `https://site-dupla.onrender.com/pratos/${id}`
+        : "https://site-dupla.onrender.com/pratos";
       
       const method = id ? "PUT" : "POST";
 

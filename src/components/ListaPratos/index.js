@@ -8,7 +8,7 @@ export default function Lista({ pratos, onDelete }) {  const [pratoParaExcluir, 
   const handleDelete = async (id) => {
     try {
       setDeletingId(id);
-      const response = await fetch(`http://localhost:8080/pratos/${id}`, {
+      const response = await fetch(`https://site-dupla.onrender.com/pratos/${id}`, {
         method: 'DELETE',
       });      if (!response.ok) {
         throw new Error('Erro ao excluir o prato');
