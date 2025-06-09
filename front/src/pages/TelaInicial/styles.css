@@ -1,0 +1,149 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.9)), url('../../assets/images/fundo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+  text-align: center;
+  animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-logo {
+  width: 180px;
+  margin-bottom: 1.5rem;
+  animation: floatAnimation 3s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.home-logo:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+@keyframes floatAnimation {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.home-title {
+  font-size: 2.5rem;
+  color: #ff1744;
+  margin-bottom: 2rem;
+  position: relative;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.8s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.home-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: #ff1744;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.home-title:hover::after {
+  width: 100%;
+}
+
+.home-buttons {
+  display: flex;
+  gap: 1rem;
+  animation: buttonsAppear 1s ease-out 0.5s both;
+}
+
+@keyframes buttonsAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-buttons a {
+  padding: 0.75rem 1.5rem;
+  border-radius: 16px;
+  font-weight: bold;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.home-buttons a::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.home-buttons a:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-cadastro {
+  background-color: #ff1744;
+  color: white;
+}
+
+.btn-cadastro:hover {
+  background-color: #ff4569;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(255, 23, 68, 0.4);
+}
+
+.btn-cardapio {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-cardapio:hover {
+  background-color: #43a047;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+}
