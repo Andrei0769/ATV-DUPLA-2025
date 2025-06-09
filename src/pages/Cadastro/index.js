@@ -25,7 +25,7 @@ export default function Cadastro() {
       setIsLoading(true);
       limparMensagem();
 
-      const response = await fetch(`http://localhost:8080/pratos/${id}`);
+      const response = await fetch(`https://atv-dupla-2025.onrender.com/pratos/${id}`);
       const data = await response.json();
 
       if (!response.ok) {

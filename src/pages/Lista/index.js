@@ -6,7 +6,7 @@ import "./styles.css";
 export default function Lista() {  const [pratos, setPratos] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/pratos")
+    fetch("https://atv-dupla-2025.onrender.com/pratos")
       .then(res => res.json())
       .then(data => setPratos(data));
   }, []);
