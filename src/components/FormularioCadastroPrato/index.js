@@ -1,80 +1,144 @@
 // === src/components/FormularioCadastro/index.jsx ===
+import { useState } from "react";
 import "./styles.css";
 
-export default function FormularioCadastro({ form, handleChange, handleSubmit, isLoading, isEdit }) {
+export default function FormularioCadastro({ isEdit = false }) {
+  const [form, setForm] = useState({
+    nomePrato: "",
+    descricao: "",
+    preco: "",
+    urlImagem: "",
+    categoria: "Entrada",
+    disponibilidade: "Em estoque",
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handlePrecoChange = (e) => {
     const valor = e.target.value;
-    if (valor === '' || /^\d*\.?\d{0,2}$/.test(valor)) {
+    if (valor === "" || /^\d*\.?\d{0,2}$/.test(valor)) {
       handleChange(e);
     }
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("https://site-dupla.onrender.com/pratos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Erro ao cadastrar o prato");
+      }
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
+
+      alert("Prato cadastrado com sucesso!");
+
+      // Reseta o formulário após envio
+      setForm({
+        nomePrato: "",
+        descricao: "",
+        preco: "",
+        urlImagem: "",
+        categoria: "Entrada",
+        disponibilidade: "Em estoque",
+      });
+    } catch (error) {
+      console.error("Erro:", error);
+      alert(error.message || "Erro ao cadastrar");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="formulario">
       <div className="form-group">
         <label htmlFor="nomePrato">Nome do Prato</label>
-        <input 
+        <input
           id="nomePrato"
-          type="text" 
-          name="nomePrato" 
-          placeholder="Digite o nome do prato" 
-          value={form.nomePrato || ''} 
-          onChange={handleChange} 
+          type="text"
+          name="nomePrato"
+          placeholder="Digite o nome do prato"
+          value={form.nomePrato}
+          onChange={handleChange}
           minLength={3}
           maxLength={100}
-          required 
+          required
           disabled={isLoading}
           autoFocus={!isEdit}
         />
-      </div><div className="form-group">
+      </div>
+
+      <div className="form-group">
         <label htmlFor="descricao">Descrição</label>
         <textarea
           id="descricao"
-          name="descricao" 
-          placeholder="Descreva o prato detalhadamente" 
-          value={form.descricao} 
-          onChange={handleChange} 
+          name="descricao"
+          placeholder="Descreva o prato detalhadamente"
+          value={form.descricao}
+          onChange={handleChange}
           minLength={10}
           maxLength={500}
-          required 
+          required
           disabled={isLoading}
         />
-      </div>      <div className="form-group">
+      </div>
+
+      <div className="form-group">
         <label htmlFor="preco">Preço (R$)</label>
-        <input 
+        <input
           id="preco"
-          type="number" 
-          step="0.01" 
-          name="preco" 
-          placeholder="0,00" 
-          value={form.preco} 
+          type="number"
+          step="0.01"
+          name="preco"
+          placeholder="0,00"
+          value={form.preco}
           onChange={handlePrecoChange}
           min="0.01"
           max="999999.99"
-          required 
+          required
           disabled={isLoading}
         />
-      </div>      <div className="form-group">
+      </div>
+
+      <div className="form-group">
         <label htmlFor="urlImagem">URL da Imagem</label>
-        <input 
+        <input
           id="urlImagem"
-          type="url" 
-          name="urlImagem" 
-          placeholder="https://" 
-          value={form.urlImagem} 
+          type="url"
+          name="urlImagem"
+          placeholder="https://"
+          value={form.urlImagem}
           onChange={handleChange}
           pattern="https?://.*"
           title="Insira uma URL válida começando com http:// ou https://"
-          required 
+          required
           disabled={isLoading}
         />
       </div>
 
       <div className="form-group">
         <label htmlFor="categoria">Categoria</label>
-        <select 
+        <select
           id="categoria"
-          name="categoria" 
-          value={form.categoria} 
+          name="categoria"
+          value={form.categoria}
           onChange={handleChange}
           disabled={isLoading}
         >
@@ -87,26 +151,40 @@ export default function FormularioCadastro({ form, handleChange, handleSubmit, i
 
       <div className="form-group">
         <label htmlFor="disponibilidade">Disponibilidade</label>
-        <select 
+        <select
           id="disponibilidade"
-          name="disponibilidade" 
-          value={form.disponibilidade} 
+          name="disponibilidade"
+          value={form.disponibilidade}
           onChange={handleChange}
           disabled={isLoading}
         >
           <option>Em estoque</option>
           <option>Esgotado</option>
         </select>
-      </div>      <div className="preview-imagem">
+      </div>
+
+      <div className="preview-imagem">
         {form.urlImagem && <img src={form.urlImagem} alt="Preview do prato" />}
       </div>
 
-      <button 
-        type="submit" 
-        disabled={isLoading || !form.nomePrato || !form.descricao || !form.preco || !form.urlImagem}
-        className={isLoading ? 'loading' : ''}
+      <button
+        type="submit"
+        disabled={
+          isLoading ||
+          !form.nomePrato ||
+          !form.descricao ||
+          !form.preco ||
+          !form.urlImagem
+        }
+        className={isLoading ? "loading" : ""}
       >
-        {isLoading ? (isEdit ? 'Salvando...' : 'Cadastrando...') : (isEdit ? 'Salvar Alterações' : 'Cadastrar')}
+        {isLoading
+          ? isEdit
+            ? "Salvando..."
+            : "Cadastrando..."
+          : isEdit
+          ? "Salvar Alterações"
+          : "Cadastrar"}
       </button>
     </form>
   );

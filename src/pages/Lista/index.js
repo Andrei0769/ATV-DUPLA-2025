@@ -1,18 +1,28 @@
-// === src/pages/Lista/index.jsx ===
 import { useEffect, useState } from "react";
 import ListaComponent from "../../components/ListaPratos";
 import "./styles.css";
 
-export default function Lista() {  const [pratos, setPratos] = useState([]);
+export default function Lista() {
+  const [pratos, setPratos] = useState([]);
 
   useEffect(() => {
-    fetch("https://atv-dupla-2025.onrender.com/pratos")
-      .then(res => res.json())
-      .then(data => setPratos(data));
+    async function carregarPratos() {
+      try {
+        const response = await fetch("https://atv-dupla-2025.onrender.com/pratos");
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : [];
+
+        setPratos(data);
+      } catch (error) {
+        console.error("Erro ao carregar pratos:", error);
+      }
+    }
+
+    carregarPratos();
   }, []);
 
   const handleDelete = (id) => {
-    setPratos(pratos => pratos.filter(prato => prato.id !== id));
+    setPratos((prevPratos) => prevPratos.filter((prato) => prato.id !== id));
   };
 
   return (

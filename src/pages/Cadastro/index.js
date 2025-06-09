@@ -11,13 +11,13 @@ export default function Cadastro() {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const { mensagem, mostrarSucesso, mostrarErro, limparMensagem } = useMensagem();
-  const [form, setForm] = useState({ 
-    nomePrato: "", 
-    descricao: "", 
-    preco: "", 
-    categoria: "Entrada", 
-    disponibilidade: "Em estoque", 
-    urlImagem: "" 
+  const [form, setForm] = useState({
+    nomePrato: "",
+    descricao: "",
+    preco: "",
+    categoria: "Entrada",
+    disponibilidade: "Em estoque",
+    urlImagem: "",
   });
 
   const carregarPrato = useCallback(async () => {
@@ -26,11 +26,12 @@ export default function Cadastro() {
       limparMensagem();
 
       const response = await fetch(`https://atv-dupla-2025.onrender.com/pratos/${id}`);
-      const data = await response.json();
 
       if (!response.ok) {
         throw new Error('Erro ao carregar o prato');
       }
+
+      const data = await response.json();
 
       setForm({
         ...data,
@@ -42,16 +43,16 @@ export default function Cadastro() {
     } finally {
       setIsLoading(false);
     }
-  }, [id, setIsLoading, limparMensagem, mostrarErro, navigate, setForm]);
+  }, [id, navigate, limparMensagem, mostrarErro]);
 
   useEffect(() => {
     if (id) {
       carregarPrato();
     }
-  }, [id, navigate, limparMensagem, mostrarErro, carregarPrato]);
+  }, [id, carregarPrato]);
 
-  const handleChange = e => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     limparMensagem();
   };
 
@@ -59,38 +60,39 @@ export default function Cadastro() {
     e.preventDefault();
     setIsLoading(true);
     limparMensagem();
-    
+
     try {
       if (!form.nomePrato.trim() || !form.descricao.trim() || !form.preco || !form.urlImagem.trim()) {
         throw new Error('Por favor, preencha todos os campos obrigatórios');
       }
 
-      const url = id 
+      const url = id
         ? `https://site-dupla.onrender.com/pratos/${id}`
         : "https://site-dupla.onrender.com/pratos";
-      
+
       const method = id ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Accept": "application/json",
         },
         body: JSON.stringify({
           ...form,
-          preco: Number(form.preco)
+          preco: Number(form.preco),
         }),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
 
       if (!response.ok) {
         throw new Error(data.message || `Erro ao ${id ? 'atualizar' : 'cadastrar'} prato`);
       }
 
       mostrarSucesso(`Prato ${id ? 'atualizado' : 'cadastrado'} com sucesso! Redirecionando...`);
-      
+
       setTimeout(() => {
         navigate("/cardapio");
       }, 2000);
@@ -107,9 +109,9 @@ export default function Cadastro() {
         <h2>{id ? 'Editar' : 'Cadastro de'} Prato</h2>
         <MensagemFeedback tipo={mensagem.tipo} texto={mensagem.texto} />
         <div className="cadastro-content">
-          <FormularioCadastro 
-            form={form} 
-            handleChange={handleChange} 
+          <FormularioCadastro
+            form={form}
+            handleChange={handleChange}
             handleSubmit={handleSubmit}
             isLoading={isLoading}
             isEdit={!!id}
