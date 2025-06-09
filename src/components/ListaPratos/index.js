@@ -1,16 +1,22 @@
-// === src/components/Lista/index.jsx ===
 import { useState } from "react";
 import ConfirmacaoDialog from "../ConfirmacaoDialog";
 import "./styles.css";
 
-export default function Lista({ pratos, onDelete }) {  const [pratoParaExcluir, setPratoParaExcluir] = useState(null);
+const BASE_URL = "https://atv-dupla-2025.onrender.com";
+
+export default function Lista({ pratos, onDelete }) {
+  const [pratoParaExcluir, setPratoParaExcluir] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+
   const handleDelete = async (id) => {
     try {
       setDeletingId(id);
-      const response = await fetch(`https://site-dupla.onrender.com/pratos/${id}`, {
+
+      const response = await fetch(`${BASE_URL}/pratos/${id}`, {
         method: 'DELETE',
-      });      if (!response.ok) {
+      });
+
+      if (!response.ok) {
         throw new Error('Erro ao excluir o prato');
       }
 
@@ -29,9 +35,10 @@ export default function Lista({ pratos, onDelete }) {  const [pratoParaExcluir, 
     <>
       <div className="lista">
         {pratos.map(prato => (
-          <div key={prato.id} className={`card ${deletingId === prato.id ? 'deleting' : ''}`}>            <div className="card-actions">
-              <button 
-                className="delete-button" 
+          <div key={prato.id} className={`card ${deletingId === prato.id ? 'deleting' : ''}`}>
+            <div className="card-actions">
+              <button
+                className="delete-button"
                 onClick={() => setPratoParaExcluir(prato)}
                 disabled={deletingId !== null}
                 title="Excluir prato"

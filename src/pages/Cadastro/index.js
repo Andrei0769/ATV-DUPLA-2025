@@ -6,6 +6,8 @@ import PreviewPrato from "../../components/PreviewPrato";
 import useMensagem from "../../hooks/useMensagem";
 import "./styles.css";
 
+const BASE_URL = "https://atv-dupla-2025.onrender.com";
+
 export default function Cadastro() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -25,7 +27,7 @@ export default function Cadastro() {
       setIsLoading(true);
       limparMensagem();
 
-      const response = await fetch(`https://atv-dupla-2025.onrender.com/pratos/${id}`);
+      const response = await fetch(`${BASE_URL}/pratos/${id}`);
 
       if (!response.ok) {
         throw new Error('Erro ao carregar o prato');
@@ -67,8 +69,8 @@ export default function Cadastro() {
       }
 
       const url = id
-        ? `https://site-dupla.onrender.com/pratos/${id}`
-        : "https://site-dupla.onrender.com/pratos";
+        ? `${BASE_URL}/pratos/${id}`
+        : `${BASE_URL}/pratos`;
 
       const method = id ? "PUT" : "POST";
 

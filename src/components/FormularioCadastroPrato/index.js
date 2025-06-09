@@ -1,191 +1,124 @@
-// === src/components/FormularioCadastro/index.jsx ===
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import FormularioCadastro from "../../components/FormularioCadastroPrato";
+import MensagemFeedback from "../../components/MensagemFeedback";
+import PreviewPrato from "../../components/PreviewPrato";
+import useMensagem from "../../hooks/useMensagem";
 import "./styles.css";
 
-export default function FormularioCadastro({ isEdit = false }) {
-  const [form, setForm] = useState({
-    nomePrato: "",
-    descricao: "",
-    preco: "",
-    urlImagem: "",
-    categoria: "Entrada",
-    disponibilidade: "Em estoque",
+const BASE_URL = "https://atv-dupla-2025.onrender.com";
+
+export default function Cadastro() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
+  const { mensagem, mostrarSucesso, mostrarErro, limparMensagem } = useMensagem();
+  const [form, setForm] = useState({ 
+    nomePrato: "", 
+    descricao: "", 
+    preco: "", 
+    categoria: "Entrada", 
+    disponibilidade: "Em estoque", 
+    urlImagem: "" 
   });
 
-  const [isLoading, setIsLoading] = useState(false);
+  const carregarPrato = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      limparMensagem();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+      const response = await fetch(`${BASE_URL}/pratos/${id}`);
+      const data = await response.json();
 
-  const handlePrecoChange = (e) => {
-    const valor = e.target.value;
-    if (valor === "" || /^\d*\.?\d{0,2}$/.test(valor)) {
-      handleChange(e);
+      if (!response.ok) {
+        throw new Error('Erro ao carregar o prato');
+      }
+
+      setForm({
+        ...data,
+        preco: data.preco.toString()
+      });
+    } catch (err) {
+      mostrarErro(err.message);
+      setTimeout(() => navigate('/cardapio'), 2000);
+    } finally {
+      setIsLoading(false);
     }
+  }, [id, limparMensagem, mostrarErro, navigate]);
+
+  useEffect(() => {
+    if (id) {
+      carregarPrato();
+    }
+  }, [id, carregarPrato]);
+
+  const handleChange = e => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    limparMensagem();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+    limparMensagem();
+    
     try {
-      const response = await fetch("https://site-dupla.onrender.com/pratos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Erro ao cadastrar o prato");
+      if (!form.nomePrato.trim() || !form.descricao.trim() || !form.preco || !form.urlImagem.trim()) {
+        throw new Error('Por favor, preencha todos os campos obrigatórios');
       }
 
-      const text = await response.text();
-      const data = text ? JSON.parse(text) : {};
+      const url = id 
+        ? `${BASE_URL}/pratos/${id}`
+        : `${BASE_URL}/pratos`;
+      
+      const method = id ? "PUT" : "POST";
 
-      alert("Prato cadastrado com sucesso!");
-
-      // Reseta o formulário após envio
-      setForm({
-        nomePrato: "",
-        descricao: "",
-        preco: "",
-        urlImagem: "",
-        categoria: "Entrada",
-        disponibilidade: "Em estoque",
+      const response = await fetch(url, {
+        method,
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          ...form,
+          preco: Number(form.preco)
+        }),
       });
-    } catch (error) {
-      console.error("Erro:", error);
-      alert(error.message || "Erro ao cadastrar");
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `Erro ao ${id ? 'atualizar' : 'cadastrar'} prato`);
+      }
+
+      mostrarSucesso(`Prato ${id ? 'atualizado' : 'cadastrado'} com sucesso! Redirecionando...`);
+      
+      setTimeout(() => {
+        navigate("/cardapio");
+      }, 2000);
+    } catch (err) {
+      mostrarErro(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="formulario">
-      <div className="form-group">
-        <label htmlFor="nomePrato">Nome do Prato</label>
-        <input
-          id="nomePrato"
-          type="text"
-          name="nomePrato"
-          placeholder="Digite o nome do prato"
-          value={form.nomePrato}
-          onChange={handleChange}
-          minLength={3}
-          maxLength={100}
-          required
-          disabled={isLoading}
-          autoFocus={!isEdit}
-        />
+    <div className="pagina-cadastro-container">
+      <div className={`pagina-cadastro ${isLoading ? 'loading' : ''}`}>
+        <h2>{id ? 'Editar' : 'Cadastro de'} Prato</h2>
+        <MensagemFeedback tipo={mensagem.tipo} texto={mensagem.texto} />
+        <div className="cadastro-content">
+          <FormularioCadastro 
+            form={form} 
+            handleChange={handleChange} 
+            handleSubmit={handleSubmit}
+            isLoading={isLoading}
+            isEdit={!!id}
+          />
+          <PreviewPrato prato={form} />
+        </div>
       </div>
-
-      <div className="form-group">
-        <label htmlFor="descricao">Descrição</label>
-        <textarea
-          id="descricao"
-          name="descricao"
-          placeholder="Descreva o prato detalhadamente"
-          value={form.descricao}
-          onChange={handleChange}
-          minLength={10}
-          maxLength={500}
-          required
-          disabled={isLoading}
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="preco">Preço (R$)</label>
-        <input
-          id="preco"
-          type="number"
-          step="0.01"
-          name="preco"
-          placeholder="0,00"
-          value={form.preco}
-          onChange={handlePrecoChange}
-          min="0.01"
-          max="999999.99"
-          required
-          disabled={isLoading}
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="urlImagem">URL da Imagem</label>
-        <input
-          id="urlImagem"
-          type="url"
-          name="urlImagem"
-          placeholder="https://"
-          value={form.urlImagem}
-          onChange={handleChange}
-          pattern="https?://.*"
-          title="Insira uma URL válida começando com http:// ou https://"
-          required
-          disabled={isLoading}
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="categoria">Categoria</label>
-        <select
-          id="categoria"
-          name="categoria"
-          value={form.categoria}
-          onChange={handleChange}
-          disabled={isLoading}
-        >
-          <option>Entrada</option>
-          <option>Prato Principal</option>
-          <option>Sobremesa</option>
-          <option>Bebida</option>
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="disponibilidade">Disponibilidade</label>
-        <select
-          id="disponibilidade"
-          name="disponibilidade"
-          value={form.disponibilidade}
-          onChange={handleChange}
-          disabled={isLoading}
-        >
-          <option>Em estoque</option>
-          <option>Esgotado</option>
-        </select>
-      </div>
-
-      <div className="preview-imagem">
-        {form.urlImagem && <img src={form.urlImagem} alt="Preview do prato" />}
-      </div>
-
-      <button
-        type="submit"
-        disabled={
-          isLoading ||
-          !form.nomePrato ||
-          !form.descricao ||
-          !form.preco ||
-          !form.urlImagem
-        }
-        className={isLoading ? "loading" : ""}
-      >
-        {isLoading
-          ? isEdit
-            ? "Salvando..."
-            : "Cadastrando..."
-          : isEdit
-          ? "Salvar Alterações"
-          : "Cadastrar"}
-      </button>
-    </form>
+    </div>
   );
 }
