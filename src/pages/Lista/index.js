@@ -19,24 +19,9 @@ export default function Lista() {
       console.error("Erro ao carregar pratos:", error);
     }
   }
-
   const handleDelete = async (id) => {
-    try {
-      const response = await fetch(`https://atv-dupla-2025.onrender.com/pratos/${id}`, {
-        method: "DELETE"
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro ao excluir o prato");
-      }
-
-      // Atualiza a lista removendo o prato excluído
-      setPratos(pratos => pratos.filter(prato => prato.id !== id));
-      alert("Prato excluído com sucesso!");
-    } catch (error) {
-      console.error(error);
-      alert("Não foi possível excluir o prato");
-    }
+    // Atualiza a lista removendo o prato excluído imediatamente
+    setPratos(pratos => pratos.filter(prato => prato.id !== id));
   };
 
   return (

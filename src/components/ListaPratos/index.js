@@ -7,10 +7,13 @@ const BASE_URL = "https://atv-dupla-2025.onrender.com";
 export default function Lista({ pratos, onDelete }) {
   const [pratoParaExcluir, setPratoParaExcluir] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-
   const handleDelete = async (id) => {
     try {
       setDeletingId(id);
+      setPratoParaExcluir(null); // Fecha o diálogo imediatamente
+
+      // Remove o item da interface primeiro
+      onDelete(id);
 
       const response = await fetch(`${BASE_URL}/pratos/${id}`, {
         method: 'DELETE',
@@ -19,15 +22,11 @@ export default function Lista({ pratos, onDelete }) {
       if (!response.ok) {
         throw new Error('Erro ao excluir o prato');
       }
-
-      onDelete(id);
-      alert('Prato excluído com sucesso!');
     } catch (error) {
       console.error('Erro:', error);
       alert('Não foi possível excluir o prato');
     } finally {
       setDeletingId(null);
-      setPratoParaExcluir(null);
     }
   };
 
